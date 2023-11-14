@@ -1,3 +1,5 @@
+import java.awt.datatransfer.FlavorListener;
+
 import javax.swing.JOptionPane;
 import controller.ExpenseTrackerController;
 import model.ExpenseTrackerModel;
@@ -34,6 +36,17 @@ public class ExpenseTrackerApp {
       
       if (!added) {
         JOptionPane.showMessageDialog(view, "Invalid amount or category entered");
+        view.toFront();
+      }
+    });
+
+    //Handle undo button click
+    view.getRemoveTransactionBtn().addActionListener(e -> {
+      //System.out.println("Remove Transaction Action Listener");
+      boolean removed = controller.removeTransactions(view.getSelectedRows());
+      view.setRemoveTransactionBtnEnabled(false);
+      if (!removed) {
+        JOptionPane.showMessageDialog(view, "Undo did not work for some reason");
         view.toFront();
       }
     });
