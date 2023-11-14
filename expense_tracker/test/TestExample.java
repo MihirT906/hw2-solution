@@ -2,6 +2,7 @@
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertNotNull;
 import static org.junit.Assert.assertTrue;
+import static org.junit.jupiter.api.Assertions.assertThrows;
 import static org.junit.Assert.assertFalse;
 
 import java.util.Date;
@@ -147,5 +148,42 @@ public class TestExample {
         assertEquals("total cost from the view is not equal to the total cost in the model", view.getTotalCostFromTable(), getTotalCost(), 0.01);
 
     }
+
+     @Test
+    public void testTransactionWithInvalidAmount() {
+        // Pre-condition: List of transactions is empty and total cost is 0 initially
+        assertEquals(0, model.getTransactions().size());
+        assertEquals(0, getTotalCost(), 0.01);
+
+        double invalidAmt = -50.0; 
+        String validCategory = "Food";
+
+        IllegalArgumentException thrown = assertThrows(IllegalArgumentException.class, () -> {
+            new Transaction(invalidAmt, validCategory);
+        });
+        
+        // Post-condition: Check that no transactions were added and that the exception message returned is as expected
+        assertEquals("The amount is not valid.", thrown.getMessage());
+        assertEquals("The transactions list should be empty after the invalid operation", 0, model.getTransactions().size());
+        assertEquals("The total cost shall remain unchanged after the invalid operation", 0, getTotalCost(), 0.01);
+
+        // Pre-condition: List of transactions is empty and total cost is 0 initially
+        assertEquals(0, model.getTransactions().size());
+        assertEquals(0, getTotalCost(), 0.01);
+
+        Transaction nullTransaction = null;
+
+        IllegalArgumentException thrown_null = assertThrows(IllegalArgumentException.class, () -> {
+        model.addTransaction(nullTransaction);
+        });
+
+        // Check that no transactions were added
+        assertEquals("The new transaction must be non-null.", thrown_null.getMessage());
+        assertEquals("Transactions list should be empty after invalid operation", 0, model.getTransactions().size());
+        assertEquals("Total cost should remain unchanged after invalid operation", 0, getTotalCost(), 0.01);
+
+        }
+
+
 
 }
