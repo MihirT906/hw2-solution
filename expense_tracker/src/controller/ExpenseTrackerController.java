@@ -52,6 +52,16 @@ public class ExpenseTrackerController {
     return true;
   }
 
+  public boolean removeTransactions(int[] selectedRows){
+    for(int rowIndex : selectedRows){
+      Transaction t_remove = model.getTransactions().get(rowIndex);
+      System.out.println(t_remove.getAmount());
+      model.removeTransaction(t_remove);
+    }
+    refresh();
+    return true;
+  }
+
   public void applyFilter() {
     //null check for filter
     if(filter!=null){
