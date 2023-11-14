@@ -1,5 +1,6 @@
 package view;
 
+import javax.sound.midi.SysexMessage;
 import javax.swing.*;
 import javax.swing.table.DefaultTableCellRenderer;
 import javax.swing.table.DefaultTableModel;
@@ -10,12 +11,14 @@ import java.text.NumberFormat;
 
 import model.Transaction;
 
+import java.util.ArrayList;
 import java.util.List;
 
 public class ExpenseTrackerView extends JFrame {
 
   private JTable transactionsTable;
   private JButton addTransactionBtn;
+  private JButton removeTransactionBtn;
   private JFormattedTextField amountField;
   private JTextField categoryField;
   private DefaultTableModel model;
@@ -39,8 +42,15 @@ public class ExpenseTrackerView extends JFrame {
     
     // Create table
     transactionsTable = new JTable(model);
+    transactionsTable.setSelectionMode(ListSelectionModel.SINGLE_SELECTION);
+
+    transactionsTable.getSelectionModel().addListSelectionListener(e -> {
+      setRemoveTransactionBtnEnabled(transactionsTable.getSelectedRowCount() > 0);
+  });
 
     addTransactionBtn = new JButton("Add Transaction");
+    removeTransactionBtn = new JButton("Undo");
+    setRemoveTransactionBtnEnabled(false);
 
     // Create UI components
     JLabel amountLabel = new JLabel("Amount:");
@@ -71,6 +81,7 @@ public class ExpenseTrackerView extends JFrame {
     inputPanel.add(categoryLabel); 
     inputPanel.add(categoryField);
     inputPanel.add(addTransactionBtn);
+    inputPanel.add(removeTransactionBtn);
 
     JPanel buttonPanel = new JPanel();
     buttonPanel.add(amountFilterBtn);
@@ -82,7 +93,7 @@ public class ExpenseTrackerView extends JFrame {
     add(buttonPanel, BorderLayout.SOUTH);
   
     // Set frame properties
-    setSize(600, 400); // Increase the size for better visibility
+    setSize(800, 500); // Increase the size for better visibility
     setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
     setVisible(true);
   
@@ -117,6 +128,7 @@ public class ExpenseTrackerView extends JFrame {
   }
 
   public void setCategoryField(JTextField categoryField) {
+    System.out.println("In set Category Field");
     this.categoryField = categoryField;
   }
 
@@ -173,7 +185,36 @@ public class ExpenseTrackerView extends JFrame {
     return addTransactionBtn;
   }
 
+  public JButton getRemoveTransactionBtn(){
+    return removeTransactionBtn;
+  }
 
+  public void setRemoveTransactionBtnEnabled(boolean enabled) {
+    removeTransactionBtn.setEnabled(enabled);
+}
+
+  public int[] getSelectedRows(){
+    return transactionsTable.getSelectedRows();
+  }
+
+  public double getTotalCostFromTable(){
+    int rowCount = model.getRowCount();
+    return (double) model.getValueAt(rowCount-1, 3);
+  }
+  public List<Transaction> getAllTransactionsFromTable() {
+    List<Transaction> transactions = new ArrayList<>();
+
+    int rowCount = model.getRowCount();
+    for (int row = 0; row < rowCount-1; row++) {
+        double amount = (double) model.getValueAt(row, 1); // Assuming the amount is in the second column (index 1)
+        String category = (String) model.getValueAt(row, 2); // Assuming the category is in the third column (index 2)
+
+        Transaction transaction = new Transaction(amount, category);
+        transactions.add(transaction);
+    }
+
+    return transactions;
+  }
   public void highlightRows(List<Integer> rowIndexes) {
       // The row indices are being used as hashcodes for the transactions.
       // The row index directly maps to the the transaction index in the list.
