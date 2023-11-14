@@ -245,6 +245,40 @@ public class TestExample {
         }
     }
 
+    //Undo dissallowed
+    @Test
+    public void testUndoDissalowed(){
+        //Pre-conditions: Number of transactions and total cost
+        assertEquals(0, model.getTransactions().size());
+        assertEquals(0, getTotalCost(), 0.01);
 
+        //Post-conditions: Check if the UI widget is disabled
+        assertFalse("The button is not disabled", view.getRemoveTransactionBtn().isEnabled());
 
+       
+    }
+
+    //Undo allowed
+    @Test
+    public void testUndoAllowed(){
+        //Pre-conditions: Number of transactions and total cost
+        assertEquals(0, model.getTransactions().size());
+        assertEquals(0, getTotalCost(), 0.01);
+
+        //Add a transaction
+        assertTrue(controller.addTransaction(50.0, "food"));
+        
+        //Perform undo functionality
+        int[] selectedRows = {0};
+        assertTrue(controller.removeTransactions(selectedRows));
+        assertEquals(0, model.getTransactions().size());
+
+        List<Transaction> transactionsFromTable = view.getAllTransactionsFromTable();
+        
+        //checking post-conditions: Testing that the transactions are removed from the view
+        assertEquals("The transaction has not been removed", transactionsFromTable.size(), 0);
+        //checking postconditions: Testing total cost using the view
+        assertEquals("total cost from the view is not equal to the total cost in the model", view.getTotalCostFromTable(), getTotalCost(), 0.01);
+
+    }
 }
