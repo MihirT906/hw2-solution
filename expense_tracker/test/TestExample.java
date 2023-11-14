@@ -23,7 +23,14 @@ import org.junit.Test;
 import controller.ExpenseTrackerController;
 import model.ExpenseTrackerModel;
 import model.Transaction;
+import model.Filter.AmountFilter;
+import model.Filter.CategoryFilter;
 import view.ExpenseTrackerView;
+
+import java.awt.*;
+import model.Filter.AmountFilter;
+import model.Filter.CategoryFilter;
+
 
 
 public class TestExample {
@@ -183,6 +190,60 @@ public class TestExample {
         assertEquals("Total cost should remain unchanged after invalid operation", 0, getTotalCost(), 0.01);
 
         }
+
+
+
+    @Test
+    public void testAmountFilter() {
+         // Pre-condition: List of transactions is empty
+        assertEquals(0, model.getTransactions().size());
+
+        // Add transactions to the model
+        double amountToFilter = 100.0;
+        model.addTransaction(new Transaction(50.0, "food"));
+        model.addTransaction(new Transaction(amountToFilter, "food"));
+        model.addTransaction(new Transaction(200.0, "travel"));
+        model.addTransaction(new Transaction(amountToFilter, "food"));
+
+        // Create an AmountFilter for the amount = amountToFilter
+        AmountFilter filter = new AmountFilter(100.0);
+
+        // Apply the filter 
+        List<Transaction> filteredTransactions = filter.filter(model.getTransactions());
+
+        //Post conditions: Check that the filtered list only contains transactions with the amount = amountToFilter
+        assertNotNull("Filtered transactions list shouldn't be null", filteredTransactions);
+        assertEquals("There should be two transactions with the amount= 100", 2, filteredTransactions.size());
+        for (Transaction transac : filteredTransactions) {
+            assertEquals("The filtered transaction should have amount 100.0", amountToFilter, transac.getAmount(), 0.0);
+        }
+    }
+
+    @Test
+    public void testCategoryFilter() {
+         // Pre-condition: List of transactions is empty
+        assertEquals(0, model.getTransactions().size());
+
+        // Add transactions with different categories directly to the model
+        model.addTransaction(new Transaction(50.0, "Food"));
+        model.addTransaction(new Transaction(100.0, "Travel"));
+        model.addTransaction(new Transaction(50.0, "Travel"));
+        model.addTransaction(new Transaction(150.0, "Food"));
+
+        // Create a CategoryFilter 
+        CategoryFilter filter = new CategoryFilter("Travel");
+
+        // Apply the filter 
+        List<Transaction> filteredTransactions = filter.filter(model.getTransactions());
+
+        // Post-condition: Check that the filtered list only contains transactions with the category "Travel"
+        assertNotNull("The filtered transactions list should not be null", filteredTransactions);
+        assertEquals("There should be only two transactions with the category= Travel", 2, filteredTransactions.size());
+        for (Transaction transac : filteredTransactions) {
+            assertTrue("Filtered transaction should have category Travel",
+                       transac.getCategory().equalsIgnoreCase("Travel"));
+        }
+    }
 
 
 
